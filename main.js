@@ -3,37 +3,76 @@
 var canvas = null;
 var pop_sound = null;
 const colors = ['red', 'blue', 'green', 'yellow', 'brown', 'purple', 'pink',
-                'gray', 'orange', 'aqua', 'cornflowerblue', 'crimson',
-                'darkred', 'darkseagreen', 'deepskyblue', 'greenyellow',
-                'indigo', 'maroon', 'lightslategrey', 'mediumorchid', 'moccasin',
-                'teal', 'tan'];
+  'gray', 'orange', 'aqua', 'cornflowerblue', 'crimson',
+  'darkred', 'darkseagreen', 'deepskyblue', 'greenyellow',
+  'indigo', 'maroon', 'lightslategrey', 'mediumorchid', 'moccasin',
+  'teal', 'tan'
+];
 
 function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.velX = 2 * Math.random() - 1;
+    this.velY = -5 * Math.random();
+  }
+
+  update() {
+    this.x += this.velX;
+    this.y += this.velY;
+    this.velY++;
+  }  
+}
+
+class Explosion {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.frame = 0;
+    this.particles = Array.from(Array(20), () => new Particle(x, y, color));
+  }
+
+  update() {
+    if (++this.frame > 20) {
+      return false;
+    }
+
+    for (let particle of this.particles) {
+      particle.update();
+    }
+    return true;
+  }
+}
+
 class Balloon {
   constructor(x, color) {
-    this.height = Math.pow(Math.random(),3) * 80 + 40;
+    this.height = Math.pow(Math.random(), 3) * 80 + 40;
     this.width = Math.pow(Math.random(), 2) * (this.height - 20) + 20;
     this.x = x;
     this.y = canvas.height + this.height;
     this.color1 = randomColor();
     this.color2 = randomColor();
     this.text = String.fromCharCode(Math.floor(Math.random() * 10) + 48);
-    
+
     this.speed = Math.random() + 0.5;
     let len = Math.random() * 50 + 50;
     this.string = [
-        [(Math.random() - 0.5) * 30, len / 3],
-        [(Math.random() - 0.5) * 30, 2 * len / 3],
-        [(Math.random() - 0.5) * 30, len],
+      [(Math.random() - 0.5) * 30, len / 3],
+      [(Math.random() - 0.5) * 30, 2 * len / 3],
+      [(Math.random() - 0.5) * 30, len],
     ];
   }
 }
 
 var canvas = null;
 var balloons = [];
+var burst_balloons = [];
 var wind = 0;
 var maxWindChange = 0.5;
 var shoot = null;
@@ -56,15 +95,15 @@ function drawBalloon(ctx, balloon) {
   ctx.moveTo(balloon.x, balloon.y + balloon.height);
   let s = balloon.string;
   ctx.bezierCurveTo(
-       balloon.x + s[0][0], balloon.y + balloon.height + s[0][1],
-       balloon.x + s[1][0], balloon.y + balloon.height + s[1][1],
-       balloon.x + s[2][0], balloon.y + balloon.height + s[2][1],
-    );
+    balloon.x + s[0][0], balloon.y + balloon.height + s[0][1],
+    balloon.x + s[1][0], balloon.y + balloon.height + s[1][1],
+    balloon.x + s[2][0], balloon.y + balloon.height + s[2][1],
+  );
   ctx.stroke();
 
   ctx.fillStyle = 'black';
   ctx.globalCompositeOperation = 'plus-darker';
-  ctx.font = '' + (balloon.width + balloon.height)/2 +  'px gill sans';
+  ctx.font = '' + (balloon.width + balloon.height) / 2 + 'px gill sans';
   ctx.fillText(balloon.text, balloon.x, balloon.y);
 }
 
@@ -95,7 +134,6 @@ function run() {
   let newBalloons = [];
   let current = null;
   let currentIndex = 0;
-
   let currentTime = Date.now();
   if (currentTime - spawnTime > lastSpawnTime) {
     spawnBalloon();
@@ -116,6 +154,7 @@ function run() {
     if (current != null) {
       pop_sound.currentTime = 0;
       pop_sound.play();
+      burst_balloons.push(new Explosion(current.x, current.y, current.color));
       balloons.splice(currentIndex, 1);
       score += 10;
     } else {
@@ -146,15 +185,32 @@ function run() {
   ctx.textBaseline = 'middle';
 
   for (let i = 0; i < balloons.length; ++i) {
-    let balloon = balloons[i];
+    let balloon = balloons[i];2727
     drawBalloon(ctx, balloon);
-    let localWind = wind * (1.2 - 0.4 * Math.random()); 
+    let localWind = wind * (1.2 - 0.4 * Math.random());
     balloon.x = Math.min(Math.max(balloon.x + localWind, balloon.width), canvas.width - balloon.width);
     balloon.y -= balloon.speed;
     if (balloon.y + balloon.height + balloon.string[2][1] > 0) {
       newBalloons.push(balloon);
-    }  
+    }
   }
+
+  let new_burst_balloons = [];
+
+  for (let i = 0; i < burst_balloons.length; ++i) {
+    let burst = burst_balloons[i];
+    for (let p of burst.particles) {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, 2, 2, 0, 0, twoPi);
+      ctx.fill();
+    }
+
+    if (burst.update()) {
+      new_burst_balloons.push(burst);
+    }
+  }
+  burst_balloons = new_burst_balloons;
 
   wind += (Math.random() - 0.5) * maxWindChange;
   const maxWind = 1;
@@ -202,4 +258,3 @@ function gameInit() {
 
   run();
 }
-

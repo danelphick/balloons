@@ -37,7 +37,10 @@ var balloons = [];
 var wind = 0;
 var maxWindChange = 0.5;
 var shoot = null;
-var lastSpawnTime = Date.now();
+var startTime = Date.now();
+var lastSpawnTime = startTime;
+var score = 0;
+const gameTime = 60 * 1000;
 const twoPi = Math.PI * 2;
 const spawnTime = 2000;
 
@@ -60,7 +63,8 @@ function drawBalloon(ctx, balloon) {
   ctx.stroke();
 
   ctx.fillStyle = 'black';
-  ctx.globalCompositeOperation = 'plus-darker'
+  ctx.globalCompositeOperation = 'plus-darker';
+  ctx.font = '' + (balloon.width + balloon.height)/2 +  'px gill sans';
   ctx.fillText(balloon.text, balloon.x, balloon.y);
 }
 
@@ -70,12 +74,24 @@ function spawnBalloon() {
   balloons.push(b);
 }
 
+function gameOver(ctx) {
+  window.removeEventListener("keypress", shootListener);
+
+  ctx.fillStyle = 'black';
+  ctx.globalCompositeOperation = 'plus-darker';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '80px gill sans';
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 150);
+  ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2 - 50);
+  ctx.font = '60px gill sans';
+  ctx.fillText("Press Enter to Play Again", canvas.width / 2, canvas.height / 2 + 100);
+  init();
+}
+
 function run() {
   var ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = 'bold 48px serif';
   let newBalloons = [];
   let current = null;
   let currentIndex = 0;
@@ -97,14 +113,38 @@ function run() {
       }
     }
     shoot = null;
+    if (current != null) {
+      pop_sound.currentTime = 0;
+      pop_sound.play();
+      balloons.splice(currentIndex, 1);
+      score += 10;
+    } else {
+      score--;
+    }
   }
 
-  if (current != null) {
-    pop_sound.currentTime = 0;
-    pop_sound.play();
-    balloons.splice(currentIndex, 1);
+  var now = Date.now();
+  var timeLeft = (gameTime - (now - startTime)) / 1000;
+
+  if (timeLeft <= 0) {
+    gameOver(ctx);
+    return;
   }
-    
+
+  ctx.fillStyle = 'black';
+  ctx.globalCompositeOperation = 'plus-darker';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.font = '20px gill sans';
+  ctx.fillText("Score: ", 0, 0);
+  ctx.textAlign = 'right';
+  ctx.fillText("" + score, 100, 0);
+
+  ctx.fillText(timeLeft.toFixed(1), canvas.width, 0);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
   for (let i = 0; i < balloons.length; ++i) {
     let balloon = balloons[i];
     drawBalloon(ctx, balloon);
@@ -115,6 +155,7 @@ function run() {
       newBalloons.push(balloon);
     }  
   }
+
   wind += (Math.random() - 0.5) * maxWindChange;
   const maxWind = 1;
   wind = Math.min(wind, maxWind);
@@ -134,21 +175,31 @@ function init() {
   window.addEventListener("keypress", enterListener, false);
 }
 
+function shootListener(e) {
+  let digit = +e.key;
+  if (!isNaN(digit)) {
+    shoot = digit;
+  }
+}
+
 function gameInit() {
-  window.addEventListener("keydown",
-    function(e) {
-      let digit = +e.key;
-      if (!isNaN(digit)) {
-        shoot = digit;
-      }
-    },
-    false);
+  balloons = [];
+  wind = 0;
+  maxWindChange = 0.5;
+  shoot = null;
+  startTime = Date.now();
+  lastSpawnTime = startTime;
+  score = 0;
+
+  window.addEventListener("keydown", shootListener, false);
 
   canvas = document.getElementById('game');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth * 0.9;
+  canvas.height = window.innerHeight * 0.9;
 
   pop_sound = document.getElementById('pop_sound');
+  pop_sound.volume = 0.5;
+
   run();
 }
 

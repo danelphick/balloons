@@ -179,7 +179,7 @@ function run() {
   ctx.textAlign = 'right';
   ctx.fillText("" + score, 100, 0);
 
-  ctx.fillText(timeLeft.toFixed(1), canvas.width, 0);
+  ctx.fillText(timeLeft.toFixed(1), canvas.width - 10, 0);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';

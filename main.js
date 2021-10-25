@@ -88,23 +88,31 @@ function drawBalloon(ctx, balloon) {
   ctx.fillStyle = balloon.color1;
 
   ctx.beginPath();
-  ctx.ellipse(balloon.x, balloon.y, balloon.width, balloon.height, 0, 0, twoPi);
+  var height = balloon.height;
+  var width = balloon.width * 2;
+  var y = balloon.y;
+  var x = balloon.x - balloon.width;
+  var bottomY = y + height * 1.8;
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x, bottomY, x + width, bottomY, x + width, y);
+  ctx.bezierCurveTo(x + width, y - height, x, y - height, x, y);
   ctx.fill();
   ctx.strokeStyle = balloon.color2;
   ctx.beginPath();
-  ctx.moveTo(balloon.x, balloon.y + balloon.height);
+  var stringY = (y + 3 * bottomY) / 4;
+  ctx.moveTo(balloon.x, stringY);
   let s = balloon.string;
   ctx.bezierCurveTo(
-    balloon.x + s[0][0], balloon.y + balloon.height + s[0][1],
-    balloon.x + s[1][0], balloon.y + balloon.height + s[1][1],
-    balloon.x + s[2][0], balloon.y + balloon.height + s[2][1],
+    balloon.x + s[0][0], stringY + s[0][1],
+    balloon.x + s[1][0], stringY + s[1][1],
+    balloon.x + s[2][0], stringY + s[2][1],
   );
   ctx.stroke();
 
   ctx.fillStyle = 'black';
   ctx.globalCompositeOperation = 'plus-darker';
   ctx.font = '' + (balloon.width + balloon.height) / 2 + 'px gill sans';
-  ctx.fillText(balloon.text, balloon.x, balloon.y);
+  ctx.fillText(balloon.text, balloon.x, y + height / 4);
 }
 
 function spawnBalloon() {

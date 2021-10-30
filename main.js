@@ -13,6 +13,25 @@ function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+class ScoreBoard {
+  constructor() {
+    this.scores = [];
+  }
+
+  addScore(newName, newScore) {
+    const maxScores = 10;
+    let newIndex = this.scores.findIndex((v) => v.score < newScore);
+    if (newIndex == -1 && this.scores.length < maxScores) {
+      newIndex = this.scores.length;
+    }
+    if (newIndex >= 0) {
+      this.scores.splice(newIndex, 0, { score: newScore, name: newName} );
+      this.scores.splice(maxScores, 1);
+    }
+    return newIndex;
+  }
+}
+
 class Particle {
   constructor(x, y, color) {
     this.x = x;
@@ -79,6 +98,7 @@ var shoot = null;
 var startTime = Date.now();
 var lastSpawnTime = startTime;
 var score = 0;
+var scoreboard = new ScoreBoard();
 const gameTime = 60 * 1000;
 const twoPi = Math.PI * 2;
 const spawnTime = 2000;
@@ -124,15 +144,39 @@ function spawnBalloon() {
 function gameOver(ctx) {
   window.removeEventListener("keypress", shootListener);
 
+  let newPosition = scoreboard.addScore("Benji", score);
+  let scores = scoreboard.scores;
+
   ctx.fillStyle = 'black';
   ctx.globalCompositeOperation = 'plus-darker';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = '80px gill sans';
-  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 150);
-  ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2 - 50);
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 4 - 150);
+  ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 4 - 50);
   ctx.font = '60px gill sans';
-  ctx.fillText("Press Enter to Play Again", canvas.width / 2, canvas.height / 2 + 100);
+  ctx.fillText("Press Enter to Play Again", canvas.width / 2, 3 * canvas.height / 4 + 100);
+
+  let startY = canvas.height / 4 + 50;
+  let scoreSpaceY = 40;
+  let positionX = canvas.width / 2 - 200;
+  let nameX = positionX + 60;
+  let scoreX = canvas.width / 2 + 250;
+  ctx.font = '60px gill sans';
+  for (let i = 0; i < scores.length; i++) {
+    let y = startY + i * scoreSpaceY;
+    if (i == newPosition) {
+      ctx.font = 'bold 50px gill sans';
+    } else {
+      ctx.font = '50px gill sans';
+    }
+    ctx.textAlign = 'right';
+    ctx.fillText((i + 1).toString() + ".", positionX, y);
+    ctx.textAlign = 'left';
+    ctx.fillText(scores[i].name, nameX, y);
+    ctx.textAlign = 'right';
+    ctx.fillText(scores[i].score.toString(), scoreX, y);
+  }
   init();
 }
 

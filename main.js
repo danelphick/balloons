@@ -285,7 +285,7 @@ function init() {
 
 function shootListener(e) {
   let digit = +e.key;
-  if (!isNaN(digit)) {
+  if (!isNaN(digit) && !e.repeat) {
     shoot = digit;
   }
 }

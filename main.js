@@ -2,6 +2,7 @@
 
 var canvas = null;
 var pop_sound = null;
+var miss_sound = null;
 const colors = ['red', 'blue', 'green', 'yellow', 'brown', 'purple', 'pink',
   'gray', 'orange', 'aqua', 'cornflowerblue', 'crimson',
   'darkred', 'darkseagreen', 'deepskyblue', 'greenyellow',
@@ -211,6 +212,8 @@ function run() {
       score += 10;
     } else {
       score--;
+      miss_sound.currentTime = 0;
+      miss_sound.play();
     }
   }
 
@@ -309,6 +312,9 @@ function gameInit() {
 
   pop_sound = document.getElementById('pop_sound');
   pop_sound.volume = 0.5;
+
+  miss_sound = document.getElementById('miss_sound');
+  miss_sound.volume = 0.5;
 
   run();
 }

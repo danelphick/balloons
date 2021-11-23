@@ -71,7 +71,7 @@ class Explosion {
 }
 
 class Balloon {
-  constructor(x, color) {
+  constructor(x, level) {
     this.height = Math.pow(Math.random(), 3) * 80 + 40;
     this.width = Math.pow(Math.random(), 2) * (this.height - 20) + 20;
     this.x = x;
@@ -80,7 +80,7 @@ class Balloon {
     this.color2 = randomColor();
     this.text = String.fromCharCode(Math.floor(Math.random() * 10) + 48);
 
-    this.speed = Math.random() + 0.5;
+    this.speed = Math.random() + 0.5 * Math.pow(1.2, level - 1);
     let len = Math.random() * 50 + 50;
     this.string = [
       [(Math.random() - 0.5) * 30, len / 3],
@@ -98,11 +98,14 @@ var maxWindChange = 0.5;
 var shoot = null;
 var startTime = Date.now();
 var lastSpawnTime = startTime;
+var level = 1;
+var lives = 3;
 var score = 0;
 var scoreboard = new ScoreBoard();
+var balloons_hit = 0;
 const gameTime = 60 * 1000;
 const twoPi = Math.PI * 2;
-const spawnTime = 2000;
+var spawnTime = 2000;
 
 function drawBalloon(ctx, balloon) {
   ctx.globalCompositeOperation = 'source-over'
@@ -138,8 +141,9 @@ function drawBalloon(ctx, balloon) {
 
 function spawnBalloon() {
   let x = Math.floor(Math.random() * canvas.width);
-  let b = new Balloon(x);
+  let b = new Balloon(x, level);
   balloons.push(b);
+  console.log(balloons);
 }
 
 function gameOver(ctx) {
@@ -181,6 +185,11 @@ function gameOver(ctx) {
   init();
 }
 
+function levelUp() {
+  level++;
+  spawnTime *= 0.9;
+}
+
 function run() {
   var ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -188,10 +197,12 @@ function run() {
   let current = null;
   let currentIndex = 0;
   let currentTime = Date.now();
+
   if (currentTime - spawnTime > lastSpawnTime) {
     spawnBalloon();
     lastSpawnTime = currentTime;
   }
+
 
   if (shoot != null) {
     for (let i = 0; i < balloons.length; ++i) {
@@ -210,6 +221,10 @@ function run() {
       burst_balloons.push(new Explosion(current.x, current.y, current.color));
       balloons.splice(currentIndex, 1);
       score += 10;
+      balloons_hit++;
+      if (balloons_hit % 10 == 0) {
+        levelUp();
+      }
     } else {
       score--;
       miss_sound.currentTime = 0;
@@ -220,7 +235,7 @@ function run() {
   var now = Date.now();
   var timeLeft = (gameTime - (now - startTime)) / 1000;
 
-  if (timeLeft <= 0) {
+  if (lives == 0) {
     gameOver(ctx);
     return;
   }
@@ -301,6 +316,8 @@ function gameInit() {
   startTime = Date.now();
   lastSpawnTime = startTime;
   score = 0;
+  balloons_hit = 0;
+  spawnTime = 1000;
 
   window.addEventListener("keydown", shootListener, false);
 

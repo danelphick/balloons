@@ -3,6 +3,8 @@
 var canvas = null;
 var pop_sound = null;
 var miss_sound = null;
+var lose_life_sound = null;
+var game_over_sound = null;
 const colors = ['red', 'blue', 'green', 'yellow', 'brown', 'purple', 'pink',
   'gray', 'orange', 'aqua', 'cornflowerblue', 'crimson',
   'darkred', 'darkseagreen', 'deepskyblue', 'greenyellow',
@@ -49,6 +51,18 @@ class Particle {
   }  
 }
 
+class Sound {
+  constructor(id, volume = 0.5) {
+    this.audio = document.getElementById(id);
+    this.audio.volume = volume;
+  }
+
+  play() {
+    this.audio.currentTime = 0;
+    this.audio.play();
+  }
+}
+
 class Explosion {
   constructor(x, y, color) {
     this.x = x;
@@ -71,7 +85,7 @@ class Explosion {
 }
 
 class Balloon {
-  constructor(x, color) {
+  constructor(x, level) {
     this.height = Math.pow(Math.random(), 3) * 80 + 40;
     this.width = Math.pow(Math.random(), 2) * (this.height - 20) + 20;
     this.x = x;
@@ -80,7 +94,7 @@ class Balloon {
     this.color2 = randomColor();
     this.text = String.fromCharCode(Math.floor(Math.random() * 10) + 48);
 
-    this.speed = Math.random() + 0.5;
+    this.speed = Math.random() + 0.5 * Math.pow(1.2, level - 1);
     let len = Math.random() * 50 + 50;
     this.string = [
       [(Math.random() - 0.5) * 30, len / 3],
@@ -98,11 +112,14 @@ var maxWindChange = 0.5;
 var shoot = null;
 var startTime = Date.now();
 var lastSpawnTime = startTime;
+var level = 1;
+var lives = 3;
 var score = 0;
 var scoreboard = new ScoreBoard();
+var balloons_hit = 0;
 const gameTime = 60 * 1000;
 const twoPi = Math.PI * 2;
-const spawnTime = 2000;
+var spawnTime = 2000;
 
 function drawBalloon(ctx, balloon) {
   ctx.globalCompositeOperation = 'source-over'
@@ -138,8 +155,9 @@ function drawBalloon(ctx, balloon) {
 
 function spawnBalloon() {
   let x = Math.floor(Math.random() * canvas.width);
-  let b = new Balloon(x);
+  let b = new Balloon(x, level);
   balloons.push(b);
+  console.log(balloons);
 }
 
 function gameOver(ctx) {
@@ -181,6 +199,11 @@ function gameOver(ctx) {
   init();
 }
 
+function levelUp() {
+  level++;
+  spawnTime *= 0.9;
+}
+
 function run() {
   var ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -188,10 +211,12 @@ function run() {
   let current = null;
   let currentIndex = 0;
   let currentTime = Date.now();
+
   if (currentTime - spawnTime > lastSpawnTime) {
     spawnBalloon();
     lastSpawnTime = currentTime;
   }
+
 
   if (shoot != null) {
     for (let i = 0; i < balloons.length; ++i) {
@@ -205,22 +230,23 @@ function run() {
     }
     shoot = null;
     if (current != null) {
-      pop_sound.currentTime = 0;
       pop_sound.play();
       burst_balloons.push(new Explosion(current.x, current.y, current.color));
       balloons.splice(currentIndex, 1);
       score += 10;
+      balloons_hit++;
+      if (balloons_hit % 10 == 0) {
+        levelUp();
+      }
     } else {
       score--;
-      miss_sound.currentTime = 0;
       miss_sound.play();
     }
   }
 
   var now = Date.now();
-  var timeLeft = (gameTime - (now - startTime)) / 1000;
-
-  if (timeLeft <= 0) {
+  if (lives == 0) {
+    game_over_sound.play();
     gameOver(ctx);
     return;
   }
@@ -234,7 +260,7 @@ function run() {
   ctx.textAlign = 'right';
   ctx.fillText("" + score, 100, 0);
 
-  ctx.fillText(timeLeft.toFixed(1), canvas.width - 10, 0);
+  ctx.fillText("Lives: " + lives, canvas.width - 10, 0);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -247,6 +273,9 @@ function run() {
     balloon.y -= balloon.speed;
     if (balloon.y + balloon.height + balloon.string[2][1] > 0) {
       newBalloons.push(balloon);
+    } else {
+      lives--;
+      lose_life_sound.play();
     }
   }
 
@@ -301,6 +330,10 @@ function gameInit() {
   startTime = Date.now();
   lastSpawnTime = startTime;
   score = 0;
+  balloons_hit = 0;
+  lives = 3;
+  level = 1;
+  spawnTime = 1000;
 
   window.addEventListener("keydown", shootListener, false);
 
@@ -310,11 +343,10 @@ function gameInit() {
   canvas.width = window.innerWidth - 8;
   canvas.height = window.innerHeight - 16;
 
-  pop_sound = document.getElementById('pop_sound');
-  pop_sound.volume = 0.5;
-
-  miss_sound = document.getElementById('miss_sound');
-  miss_sound.volume = 0.5;
+  pop_sound = new Sound('pop_sound');
+  miss_sound = new Sound('miss_sound');
+  lose_life_sound = new Sound('lose_life_sound');
+  game_over_sound = new Sound('game_over_sound')
 
   run();
 }

@@ -1,12 +1,23 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Balloons</title>
+    <style>
+html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0;
+}
+    </style>
     <script src="main.js"></script>
   </head>
   <body onload="init()">
     <div id="start_prompt">Press Enter to Start</div>
-    <!-- sound downloaded from
-         https://freesound.org/people/Gniffelbaf/sounds/82109/
+    <!-- sounds downloaded from
+         balloon burst: https://freesound.org/people/Gniffelbaf/sounds/82109/
+         miss: https://freesound.org/people/SypherZent/sounds/420668/
+         lose life: https://freesound.org/people/OwlStorm/sounds/404743/
+         game over: https://freesound.org/people/Rocotilos/sounds/178876/
          Under https://creativecommons.org/publicdomain/zero/1.0/
          There's about a 1 second delay playing this sound through Safari. With
          Chrome, it's instaneous. -->
@@ -15,6 +26,12 @@
     </audio>
     <audio id="miss_sound">
       <source src="miss.wav"/>
+    </audio>
+    <audio id="lose_life_sound">
+      <source src="lose_life.wav"/>
+    </audio>
+    <audio id="game_over_sound">
+      <source src="game_over.wav"/>
     </audio>
     <canvas id="game"></canvas>
   </body>

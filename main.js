@@ -3,6 +3,8 @@
 var canvas = null;
 var pop_sound = null;
 var miss_sound = null;
+var lose_life_sound = null;
+var game_over_sound = null;
 const colors = ['red', 'blue', 'green', 'yellow', 'brown', 'purple', 'pink',
   'gray', 'orange', 'aqua', 'cornflowerblue', 'crimson',
   'darkred', 'darkseagreen', 'deepskyblue', 'greenyellow',
@@ -47,6 +49,18 @@ class Particle {
     this.y += this.velY;
     this.velY++;
   }  
+}
+
+class Sound {
+  constructor(id, volume = 0.5) {
+    this.audio = document.getElementById(id);
+    this.audio.volume = volume;
+  }
+
+  play() {
+    this.audio.currentTime = 0;
+    this.audio.play();
+  }
 }
 
 class Explosion {
@@ -216,7 +230,6 @@ function run() {
     }
     shoot = null;
     if (current != null) {
-      pop_sound.currentTime = 0;
       pop_sound.play();
       burst_balloons.push(new Explosion(current.x, current.y, current.color));
       balloons.splice(currentIndex, 1);
@@ -227,13 +240,13 @@ function run() {
       }
     } else {
       score--;
-      miss_sound.currentTime = 0;
       miss_sound.play();
     }
   }
 
   var now = Date.now();
   if (lives == 0) {
+    game_over_sound.play();
     gameOver(ctx);
     return;
   }
@@ -262,6 +275,7 @@ function run() {
       newBalloons.push(balloon);
     } else {
       lives--;
+      lose_life_sound.play();
     }
   }
 
@@ -329,11 +343,10 @@ function gameInit() {
   canvas.width = window.innerWidth - 8;
   canvas.height = window.innerHeight - 16;
 
-  pop_sound = document.getElementById('pop_sound');
-  pop_sound.volume = 0.5;
-
-  miss_sound = document.getElementById('miss_sound');
-  miss_sound.volume = 0.5;
+  pop_sound = new Sound('pop_sound');
+  miss_sound = new Sound('miss_sound');
+  lose_life_sound = new Sound('lose_life_sound');
+  game_over_sound = new Sound('game_over_sound')
 
   run();
 }

@@ -233,8 +233,6 @@ function run() {
   }
 
   var now = Date.now();
-  var timeLeft = (gameTime - (now - startTime)) / 1000;
-
   if (lives == 0) {
     gameOver(ctx);
     return;
@@ -249,7 +247,7 @@ function run() {
   ctx.textAlign = 'right';
   ctx.fillText("" + score, 100, 0);
 
-  ctx.fillText(timeLeft.toFixed(1), canvas.width - 10, 0);
+  ctx.fillText("Lives: " + lives, canvas.width - 10, 0);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -262,6 +260,8 @@ function run() {
     balloon.y -= balloon.speed;
     if (balloon.y + balloon.height + balloon.string[2][1] > 0) {
       newBalloons.push(balloon);
+    } else {
+      lives--;
     }
   }
 
@@ -317,6 +317,8 @@ function gameInit() {
   lastSpawnTime = startTime;
   score = 0;
   balloons_hit = 0;
+  lives = 3;
+  level = 1;
   spawnTime = 1000;
 
   window.addEventListener("keydown", shootListener, false);

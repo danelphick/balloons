@@ -211,20 +211,22 @@ function run() {
   let current = null;
   let currentIndex = 0;
   let currentTime = Date.now();
+  let currentTopY = 0;
 
   if (currentTime - spawnTime > lastSpawnTime) {
     spawnBalloon();
     lastSpawnTime = currentTime;
   }
 
-
   if (shoot != null) {
     for (let i = 0; i < balloons.length; ++i) {
       let balloon = balloons[i];
       if (balloon.text == shoot) {
-        if (current == null || (balloon.y + balloon.height > current.y + current.height)) {
+        var topY = balloon.y - balloon.height * .8;
+        if (current == null || topY < currentTopY) {
           current = balloon;
           currentIndex = i;
+          currentTopY = topY;
         }
       }
     }

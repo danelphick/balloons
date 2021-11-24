@@ -245,7 +245,7 @@ function run() {
   }
 
   var now = Date.now();
-  if (lives == 0) {
+  if (lives < 1) {
     game_over_sound.play();
     gameOver(ctx);
     return;
@@ -266,7 +266,7 @@ function run() {
   ctx.textBaseline = 'middle';
 
   for (let i = 0; i < balloons.length; ++i) {
-    let balloon = balloons[i];2727
+    let balloon = balloons[i];
     drawBalloon(ctx, balloon);
     let localWind = wind * (1.2 - 0.4 * Math.random());
     balloon.x = Math.min(Math.max(balloon.x + localWind, balloon.width), canvas.width - balloon.width);

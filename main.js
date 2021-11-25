@@ -214,7 +214,7 @@ function showScordBoard() {
 function gameOver(ctx) {
   window.removeEventListener("keypress", shootListener);
 
-  showScordBoard();
+  init();
 }
 
 function levelUp() {
@@ -324,6 +324,11 @@ function run() {
   window.requestAnimationFrame(run)
 }
 
+function firstInit() {
+  canvas = document.getElementById('game');
+  init();
+}
+
 function init() {
   showScordBoard();
 
@@ -371,7 +376,6 @@ function gameInit() {
 
   window.addEventListener("keydown", shootListener, false);
 
-  canvas = document.getElementById('game');
   // Need to figure out a better way to do this but they go as far out as on my
   // MBP, although there is still some padding at the bottom of the window.
   canvas.width = window.innerWidth - 8;

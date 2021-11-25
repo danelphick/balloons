@@ -8,11 +8,69 @@ html, body {
   height: 100%;
   margin: 0;
 }
+td.position {
+  text-align: right;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+td.name {
+  text-align: left;
+  padding-left: 1em;
+  padding-right: 1em;
+  width: 20em;
+}
+td.score {
+  text-align: right;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+#high_score_table {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5em;
+}
+
+#high_scores {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.high_scores_heading {
+  text-align: center;
+  font: 2em sans-serif;
+}
+
+tr {
+  font: 1em sans-serif;
+  border-collapse: collapse;
+}
+
+tr.current_high_score {
+  font-weight: bold;
+  background-color: cornflowerblue;
+  color: white;
+}
     </style>
     <script src="main.js"></script>
   </head>
   <body onload="init()">
-    <div id="start_prompt">Press Enter to Start</div>
+    <div id="high_scores">
+      <div class="high_scores_heading" id="game_over" style="visibility: hidden">Game Over</div>
+      <div class="high_scores_heading">High Scores</div>
+      <table id="high_score_table" cellspacing=0 >
+        <tr><td class="position">1.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">2.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">3.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">4.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">5.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">6.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">7.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">8.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">9.</td> <td class="name"></td><td class="score">0</td></tr>
+        <tr><td class="position">10.</td><td class="name"></td><td class="score">0</td></tr>
+      </table>
+      <div class="high_scores_heading">Press Enter to Start</div>
+    </div>
     <!-- sounds downloaded from
          balloon burst: https://freesound.org/people/Gniffelbaf/sounds/82109/
          miss: https://freesound.org/people/SypherZent/sounds/420668/
@@ -33,6 +91,6 @@ html, body {
     <audio id="game_over_sound">
       <source src="game_over.wav"/>
     </audio>
-    <canvas id="game"></canvas>
+    <canvas id="game" hidden></canvas>
   </body>
 </html>

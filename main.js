@@ -19,9 +19,12 @@ function randomColor() {
 class ScoreBoard {
   constructor() {
     this.scores = [];
+    for (let i = 0; i < 10; ++i) {
+      this.addScore("", 0);
+    }
   }
 
-  addScore(newName, newScore) {
+  addScore(newName, newScore = 0) {
     const maxScores = 10;
     let newIndex = this.scores.findIndex((v) => v.score < newScore);
     if (newIndex == -1 && this.scores.length < maxScores) {
@@ -88,6 +91,8 @@ class Balloon {
   constructor(x, level) {
     this.height = Math.pow(Math.random(), 3) * 80 + 40;
     this.width = Math.pow(Math.random(), 2) * (this.height - 20) + 20;
+    this.height *= scale;
+    this.width *= scale;
     this.x = x;
     this.y = canvas.height + this.height;
     this.color1 = randomColor();
@@ -95,11 +100,12 @@ class Balloon {
     this.text = String.fromCharCode(Math.floor(Math.random() * 10) + 48);
 
     this.speed = Math.random() + 0.5 * Math.pow(1.2, level - 1);
-    let len = Math.random() * 50 + 50;
+    this.speed *= scale;
+    let len = (Math.random() * 50 + 50) * scale;
     this.string = [
-      [(Math.random() - 0.5) * 30, len / 3],
-      [(Math.random() - 0.5) * 30, 2 * len / 3],
-      [(Math.random() - 0.5) * 30, len],
+      [(Math.random() - 0.5) * 30 * scale, len / 3],
+      [(Math.random() - 0.5) * 30 * scale, 2 * len / 3],
+      [(Math.random() - 0.5) * 30 * scale, len],
     ];
   }
 }
@@ -117,6 +123,9 @@ var lives = 3;
 var score = 0;
 var scoreboard = new ScoreBoard();
 var balloons_hit = 0;
+var window_width = 0;
+var window_height = 0;
+var scale = 0;
 const gameTime = 60 * 1000;
 const twoPi = Math.PI * 2;
 var spawnTime = 2000;
@@ -157,46 +166,55 @@ function spawnBalloon() {
   let x = Math.floor(Math.random() * canvas.width);
   let b = new Balloon(x, level);
   balloons.push(b);
-  console.log(balloons);
+}
+
+function showScordBoard() {
+  document.getElementById('high_scores').style.display = "block";
+  canvas.style.display = "none";
+  let newPosition = scoreboard.addScore("Benji", score);
+  let scores = scoreboard.scores;
+
+  let scores_rows = document.getElementById("high_score_table").children[0].children;
+
+  for (let i = 0; i < scores.length; ++i) {
+    let row = scores_rows[i];
+    if (i == newPosition) {
+      row.classList.add("current_high_score");
+    } else {
+      row.classList.remove("current_high_score");
+    }
+    let name_td = row.children[1];
+    let score_td = row.children[2];
+    name_td.innerHTML = scores[i].name;
+    score_td.innerHTML = scores[i].score.toString();
+  }
+
+  // let startY = canvas.height / 4 + 50;
+  // let scoreSpaceY = 40;
+  // let positionX = canvas.width / 2 - 200;
+  // let nameX = positionX + 60;
+  // let scoreX = canvas.width / 2 + 250;
+  // ctx.font = '60px gill sans';
+  // for (let i = 0; i < scores.length; i++) {
+  //   let y = startY + i * scoreSpaceY;
+  //   if (i == newPosition) {
+  //     ctx.font = 'bold 50px gill sans';
+  //   } else {
+  //     ctx.font = '50px gill sans';
+  //   }
+  //   ctx.textAlign = 'right';
+  //   ctx.fillText((i + 1).toString() + ".", positionX, y);
+  //   ctx.textAlign = 'left';
+  //   ctx.fillText(scores[i].name, nameX, y);
+  //   ctx.textAlign = 'right';
+  //   ctx.fillText(scores[i].score.toString(), scoreX, y);
+  // }
 }
 
 function gameOver(ctx) {
   window.removeEventListener("keypress", shootListener);
 
-  let newPosition = scoreboard.addScore("Benji", score);
-  let scores = scoreboard.scores;
-
-  ctx.fillStyle = 'black';
-  ctx.globalCompositeOperation = 'plus-darker';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = '80px gill sans';
-  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 4 - 150);
-  ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 4 - 50);
-  ctx.font = '60px gill sans';
-  ctx.fillText("Press Enter to Play Again", canvas.width / 2, 3 * canvas.height / 4 + 100);
-
-  let startY = canvas.height / 4 + 50;
-  let scoreSpaceY = 40;
-  let positionX = canvas.width / 2 - 200;
-  let nameX = positionX + 60;
-  let scoreX = canvas.width / 2 + 250;
-  ctx.font = '60px gill sans';
-  for (let i = 0; i < scores.length; i++) {
-    let y = startY + i * scoreSpaceY;
-    if (i == newPosition) {
-      ctx.font = 'bold 50px gill sans';
-    } else {
-      ctx.font = '50px gill sans';
-    }
-    ctx.textAlign = 'right';
-    ctx.fillText((i + 1).toString() + ".", positionX, y);
-    ctx.textAlign = 'left';
-    ctx.fillText(scores[i].name, nameX, y);
-    ctx.textAlign = 'right';
-    ctx.fillText(scores[i].score.toString(), scoreX, y);
-  }
-  init();
+  showScordBoard();
 }
 
 function levelUp() {
@@ -307,20 +325,34 @@ function run() {
 }
 
 function init() {
+  showScordBoard();
+
   function enterListener(e) {
     if (e.code == 'Enter') {
       gameInit();
-      document.getElementById('start_prompt').style.display = "none";
+      document.getElementById('high_scores').style.display = "none";
+      canvas.style.display = "block";
       window.removeEventListener("keypress", enterListener);
     }
   }
+
+  function resizeListener(e) {
+    window_width = window.innerWidth;
+    window_height = window.innerHeight;
+    scale = window_height / 1000;
+  }
+
   window.addEventListener("keypress", enterListener, false);
+  window.addEventListener("resize", resizeListener, false);
+  resizeListener();
 }
 
 function shootListener(e) {
   let digit = +e.key;
   if (!isNaN(digit) && !e.repeat) {
     shoot = digit;
+  } else if (e.key == "Escape") {
+    lives = 0;
   }
 }
 
@@ -348,7 +380,7 @@ function gameInit() {
   pop_sound = new Sound('pop_sound');
   miss_sound = new Sound('miss_sound');
   lose_life_sound = new Sound('lose_life_sound');
-  game_over_sound = new Sound('game_over_sound')
+  game_over_sound = new Sound('game_over_sound', 1.0)
 
   run();
 }

@@ -17,6 +17,8 @@ function randomColor() {
 }
 
 const kScoresKey = "balloons_scores";
+const kSavedVersionKey = "balloons_version";
+const kCurrentVersion = 0.1;
 
 class ScoreBoard {
   saveScores() {
@@ -25,12 +27,17 @@ class ScoreBoard {
       stored_scores.push([row.name, row.score]);
     }
     window.localStorage.setItem(kScoresKey, JSON.stringify(stored_scores));
+    window.localStorage.setItem(kSavedVersionKey, kCurrentVersion.toFixed(1));
   }
 
   constructor() {
     let my_storage = window.localStorage;
-    let json_scores = my_storage.getItem(kScoresKey);
-
+    let version = Number.parseFloat(my_storage.getItem(kSavedVersionKey));
+    let json_scores = null;
+    // Reset all the scores if the stored version doesn't exist or it's not equal to source version.
+    if (version == kCurrentVersion) {
+      json_scores = my_storage.getItem(kScoresKey);
+    }
     this.scores = [];
     if (json_scores === null) {
       for (let i = 0; i < 10; ++i) {

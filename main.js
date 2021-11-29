@@ -16,11 +16,32 @@ function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
 }
 
+const kScoresKey = "balloons_scores";
+
 class ScoreBoard {
+  saveScores() {
+    let stored_scores = [];
+    for (let row of this.scores) {
+      stored_scores.push([row.name, row.score]);
+    }
+    window.localStorage.setItem(kScoresKey, JSON.stringify(stored_scores));
+  }
+
   constructor() {
+    let my_storage = window.localStorage;
+    let json_scores = my_storage.getItem(kScoresKey);
+
     this.scores = [];
-    for (let i = 0; i < 10; ++i) {
-      this.addScore("", 0);
+    if (json_scores === null) {
+      for (let i = 0; i < 10; ++i) {
+        this.addScore("", 0);
+      }
+      this.saveScores();
+    } else {
+      let stored_scores = JSON.parse(json_scores);
+      for (let row of stored_scores) {
+        this.addScore(row[0], row[1]);
+      }
     }
   }
 
@@ -172,6 +193,7 @@ function showScordBoard() {
   document.getElementById('high_scores').style.display = "block";
   canvas.style.display = "none";
   let newPosition = scoreboard.addScore("Benji", score);
+  scoreboard.saveScores();
   let scores = scoreboard.scores;
 
   let scores_rows = document.getElementById("high_score_table").children[0].children;

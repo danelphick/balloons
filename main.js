@@ -52,6 +52,11 @@ class ScoreBoard {
     }
   }
 
+  setName(position, name) {
+    this.scores[position].name = name;
+    this.saveScores();
+  }
+
   addScore(newName, newScore = 0) {
     const maxScores = 10;
     let newIndex = this.scores.findIndex((v) => v.score < newScore);
@@ -199,7 +204,7 @@ function spawnBalloon() {
 function showScordBoard() {
   document.getElementById('high_scores').style.display = "block";
   canvas.style.display = "none";
-  let newPosition = scoreboard.addScore("Benji", score);
+  let newPosition = scoreboard.addScore("", score);
   scoreboard.saveScores();
   let scores = scoreboard.scores;
 
@@ -207,37 +212,21 @@ function showScordBoard() {
 
   for (let i = 0; i < scores.length; ++i) {
     let row = scores_rows[i];
-    if (i == newPosition) {
-      row.classList.add("current_high_score");
-    } else {
-      row.classList.remove("current_high_score");
-    }
     let name_td = row.children[1];
     let score_td = row.children[2];
-    name_td.innerHTML = scores[i].name;
-    score_td.innerHTML = scores[i].score.toString();
+    name_td.innerText = scores[i].name;
+    score_td.innerText = scores[i].score.toString();
+    if (i == newPosition) {
+      name_td.contentEditable = "true";
+      name_td.focus();
+      row.classList.add("current_high_score");
+    } else {
+      name_td.contentEditable = "false";
+      row.classList.remove("current_high_score");
+    }
   }
 
-  // let startY = canvas.height / 4 + 50;
-  // let scoreSpaceY = 40;
-  // let positionX = canvas.width / 2 - 200;
-  // let nameX = positionX + 60;
-  // let scoreX = canvas.width / 2 + 250;
-  // ctx.font = '60px gill sans';
-  // for (let i = 0; i < scores.length; i++) {
-  //   let y = startY + i * scoreSpaceY;
-  //   if (i == newPosition) {
-  //     ctx.font = 'bold 50px gill sans';
-  //   } else {
-  //     ctx.font = '50px gill sans';
-  //   }
-  //   ctx.textAlign = 'right';
-  //   ctx.fillText((i + 1).toString() + ".", positionX, y);
-  //   ctx.textAlign = 'left';
-  //   ctx.fillText(scores[i].name, nameX, y);
-  //   ctx.textAlign = 'right';
-  //   ctx.fillText(scores[i].score.toString(), scoreX, y);
-  // }
+  return newPosition;
 }
 
 function gameOver(ctx) {
@@ -359,26 +348,42 @@ function firstInit() {
 }
 
 function init() {
-  showScordBoard();
-
-  function enterListener(e) {
-    if (e.code == 'Enter') {
-      gameInit();
-      document.getElementById('high_scores').style.display = "none";
-      canvas.style.display = "block";
-      window.removeEventListener("keypress", enterListener);
-    }
-  }
-
   function resizeListener(e) {
     window_width = window.innerWidth;
     window_height = window.innerHeight;
     scale = window_height / 1000;
   }
 
-  window.addEventListener("keypress", enterListener, false);
   window.addEventListener("resize", resizeListener, false);
   resizeListener();
+
+  let newPosition = showScordBoard();
+
+  let high_score_prompt = document.getElementById("high_score_prompt")
+  if (newPosition >= 0) {
+    high_score_prompt.innerText = "Enter Name for New High Score";
+  } else {
+    high_score_prompt.innerText = "Press Enter to Start";
+  }
+  function enterListener(e) {
+    if (e.code == 'Enter') {
+      if (newPosition >= 0) {
+        let name_row = document.getElementById("high_score_table").children[0].children[newPosition];
+        let name_td = name_row.children[1];
+        scoreboard.setName(newPosition, name_td.innerText)
+        name_td.contentEditable = "false";
+        newPosition = -1;
+        high_score_prompt.innerText = "Press Enter to Start";
+      } else {
+        gameInit();
+        document.getElementById('high_scores').style.display = "none";
+        canvas.style.display = "block";
+        window.removeEventListener("keypress", enterListener);
+      }
+    }
+  }
+
+  window.addEventListener("keypress", enterListener, false);
 }
 
 function shootListener(e) {

@@ -64,7 +64,7 @@ class ScoreBoard {
       newIndex = this.scores.length;
     }
     if (newIndex >= 0) {
-      this.scores.splice(newIndex, 0, { score: newScore, name: newName} );
+      this.scores.splice(newIndex, 0, { score: newScore, name: newName });
       this.scores.splice(maxScores, 1);
     }
     return newIndex;
@@ -84,7 +84,7 @@ class Particle {
     this.x += this.velX;
     this.y += this.velY;
     this.velY++;
-  }  
+  }
 }
 
 class Sound {

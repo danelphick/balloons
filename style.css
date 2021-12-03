@@ -1,0 +1,52 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+td.position {
+    text-align: right;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+td.name {
+    text-align: left;
+    padding-left: 1em;
+    padding-right: 1em;
+    width: 20em;
+}
+
+td.score {
+    text-align: right;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+#high_score_table {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5em;
+}
+
+#high_scores {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.high_scores_heading {
+    text-align: center;
+    font: 2em sans-serif;
+}
+
+tr {
+    font: 1em sans-serif;
+    border-collapse: collapse;
+}
+
+tr.current_high_score {
+    font-weight: bold;
+    background-color: cornflowerblue;
+    color: white;
+}

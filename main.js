@@ -1,6 +1,6 @@
+// @ts-check
 'use strict';
 
-var canvas = null;
 var pop_sound = null;
 var miss_sound = null;
 var lose_life_sound = null;
@@ -52,11 +52,18 @@ class ScoreBoard {
     }
   }
 
+  /**
+   * @param {number} position
+   * @param {string} name
+   */
   setName(position, name) {
     this.scores[position].name = name;
     this.saveScores();
   }
 
+  /**
+   * @param {string} newName
+   */
   addScore(newName, newScore = 0) {
     const maxScores = 10;
     let newIndex = this.scores.findIndex((v) => v.score < newScore);
@@ -64,7 +71,10 @@ class ScoreBoard {
       newIndex = this.scores.length;
     }
     if (newIndex >= 0) {
-      this.scores.splice(newIndex, 0, { score: newScore, name: newName });
+      this.scores.splice(newIndex, 0, {
+        score: newScore,
+        name: newName
+      });
       this.scores.splice(maxScores, 1);
     }
     return newIndex;
@@ -72,6 +82,11 @@ class ScoreBoard {
 }
 
 class Particle {
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {any} color
+   */
   constructor(x, y, color) {
     this.x = x;
     this.y = y;
@@ -88,8 +103,12 @@ class Particle {
 }
 
 class Sound {
+  /**
+   * @param {string} id
+   */
   constructor(id, volume = 0.5) {
-    this.audio = document.getElementById(id);
+    /** @type {HTMLAudioElement} */
+    this.audio = (document.getElementById(id));
     this.audio.volume = volume;
   }
 
@@ -100,6 +119,11 @@ class Sound {
 }
 
 class Explosion {
+  /**
+   * @param {number} x
+   * @param {number} y
+   * @param {any} color
+   */
   constructor(x, y, color) {
     this.x = x;
     this.y = y;
@@ -121,6 +145,10 @@ class Explosion {
 }
 
 class Balloon {
+  /**
+   * @param {number} x
+   * @param {number} level
+   */
   constructor(x, level) {
     this.height = Math.pow(Math.random(), 3) * 80 + 40;
     this.width = Math.pow(Math.random(), 2) * (this.height - 20) + 20;
@@ -143,7 +171,9 @@ class Balloon {
   }
 }
 
+/** @type {HTMLCanvasElement | undefined} */
 var canvas = null;
+/** @type {Balloon[]} */
 var balloons = [];
 var burst_balloons = [];
 var wind = 0;
@@ -163,6 +193,10 @@ const gameTime = 60 * 1000;
 const twoPi = Math.PI * 2;
 var spawnTime = 2000;
 
+/**
+ * @param {any} ctx
+ * @param {Balloon} balloon
+ */
 function drawBalloon(ctx, balloon) {
   ctx.globalCompositeOperation = 'source-over'
   ctx.fillStyle = balloon.color1;
@@ -212,8 +246,10 @@ function showScordBoard() {
 
   for (let i = 0; i < scores.length; ++i) {
     let row = scores_rows[i];
-    let name_td = row.children[1];
-    let score_td = row.children[2];
+    /** @type {HTMLTableCellElement} */
+    let name_td = (row.children[1]);
+    /** @type {HTMLTableCellElement} */
+    let score_td = (row.children[2]);
     name_td.innerText = scores[i].name;
     score_td.innerText = scores[i].score.toString();
     if (i == newPosition) {
@@ -229,8 +265,11 @@ function showScordBoard() {
   return newPosition;
 }
 
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ */
 function gameOver(ctx) {
-  window.removeEventListener("keypress", shootListener);
+  window.removeEventListener("keydown", shootListener);
 
   init();
 }
@@ -241,7 +280,7 @@ function levelUp() {
 }
 
 function run() {
-  var ctx = canvas.getContext("2d");
+  let ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let newBalloons = [];
   let current = null;
@@ -269,7 +308,7 @@ function run() {
     shoot = null;
     if (current != null) {
       pop_sound.play();
-      burst_balloons.push(new Explosion(current.x, current.y, current.color));
+      burst_balloons.push(new Explosion(current.x, current.y, current.color1));
       balloons.splice(currentIndex, 1);
       score += 10;
       balloons_hit++;
@@ -343,19 +382,23 @@ function run() {
 }
 
 function firstInit() {
-  canvas = document.getElementById('game');
+  canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('game'));
   init();
 }
 
 function init() {
-  function resizeListener(e) {
+  /**
+   * @param {UIEvent} _ev
+   * @returns {any}
+   */
+  function resizeListener(_ev) {
     window_width = window.innerWidth;
     window_height = window.innerHeight;
     scale = window_height / 1000;
   }
 
   window.addEventListener("resize", resizeListener, false);
-  resizeListener();
+  resizeListener(undefined);
 
   let newPosition = showScordBoard();
 
@@ -365,11 +408,16 @@ function init() {
   } else {
     high_score_prompt.innerText = "Press Enter to Start";
   }
+
+  /**
+   * @param {KeyboardEvent} e
+   */
   function enterListener(e) {
     if (e.code == 'Enter') {
       if (newPosition >= 0) {
         let name_row = document.getElementById("high_score_table").children[0].children[newPosition];
-        let name_td = name_row.children[1];
+        /** @type {HTMLTableCellElement} */
+        let name_td = (name_row.children[1]);
         scoreboard.setName(newPosition, name_td.innerText)
         name_td.contentEditable = "false";
         newPosition = -1;
@@ -378,14 +426,17 @@ function init() {
         gameInit();
         document.getElementById('high_scores').style.display = "none";
         canvas.style.display = "block";
-        window.removeEventListener("keypress", enterListener);
+        window.removeEventListener("keydown", enterListener);
       }
     }
   }
 
-  window.addEventListener("keypress", enterListener, false);
+  window.addEventListener("keydown", enterListener, false);
 }
 
+/**
+ * @param {KeyboardEvent} e
+ */
 function shootListener(e) {
   let digit = +e.key;
   if (!isNaN(digit) && !e.repeat) {

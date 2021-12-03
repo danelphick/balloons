@@ -1,77 +1,123 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Balloons</title>
-    <style>
-html, body {
-  width:  100%;
-  height: 100%;
-  margin: 0;
-}
-td.position {
-  text-align: right;
-  padding-left: 1em;
-  padding-right: 1em;
-}
-td.name {
-  text-align: left;
-  padding-left: 1em;
-  padding-right: 1em;
-  width: 20em;
-}
-td.score {
-  text-align: right;
-  padding-left: 1em;
-  padding-right: 1em;
-}
-#high_score_table {
-  margin-left: auto;
-  margin-right: auto;
-  padding: 5em;
-}
 
-#high_scores {
-  margin-top: auto;
-  margin-bottom: auto;
-}
+<head>
+  <title>Balloons</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
 
-.high_scores_heading {
-  text-align: center;
-  font: 2em sans-serif;
-}
+    td.position {
+      text-align: right;
+      padding-left: 1em;
+      padding-right: 1em;
+    }
 
-tr {
-  font: 1em sans-serif;
-  border-collapse: collapse;
-}
+    td.name {
+      text-align: left;
+      padding-left: 1em;
+      padding-right: 1em;
+      width: 20em;
+    }
 
-tr.current_high_score {
-  font-weight: bold;
-  background-color: cornflowerblue;
-  color: white;
-}
-    </style>
-    <script src="main.js"></script>
-  </head>
-  <body onload="firstInit()">
-    <div id="high_scores">
-      <div class="high_scores_heading" id="game_over" style="visibility: hidden">Game Over</div>
-      <div class="high_scores_heading">High Scores</div>
-      <table id="high_score_table" cellspacing=0 >
-        <tr><td class="position">1.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">2.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">3.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">4.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">5.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">6.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">7.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">8.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">9.</td> <td class="name"></td><td class="score">0</td></tr>
-        <tr><td class="position">10.</td><td class="name"></td><td class="score">0</td></tr>
-      </table>
-      <div id="high_score_prompt" class="high_scores_heading">Press Enter to Start</div>
-    </div>
-    <!-- sounds downloaded from
+    td.score {
+      text-align: right;
+      padding-left: 1em;
+      padding-right: 1em;
+    }
+
+    #high_score_table {
+      margin-left: auto;
+      margin-right: auto;
+      padding: 5em;
+    }
+
+    #high_scores {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    .high_scores_heading {
+      text-align: center;
+      font: 2em sans-serif;
+    }
+
+    tr {
+      font: 1em sans-serif;
+      border-collapse: collapse;
+    }
+
+    tr.current_high_score {
+      font-weight: bold;
+      background-color: cornflowerblue;
+      color: white;
+    }
+  </style>
+  <script src="main.js"></script>
+</head>
+
+<body onload="firstInit()">
+  <div id="high_scores" style="margin-top: 4em;">
+    <div class="high_scores_heading">High Scores</div>
+    <table id="high_score_table" cellspacing=0>
+      <tr>
+        <td class="position">1.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">2.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">3.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">4.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">5.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">6.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">7.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">8.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">9.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+      <tr>
+        <td class="position">10.</td>
+        <td class="name"></td>
+        <td class="score">0</td>
+      </tr>
+    </table>
+    <div id="high_score_prompt" class="high_scores_heading">Press Enter to Start</div>
+  </div>
+  <!-- sounds downloaded from
          balloon burst: https://freesound.org/people/Gniffelbaf/sounds/82109/
          miss: https://freesound.org/people/SypherZent/sounds/420668/
          lose life: https://freesound.org/people/OwlStorm/sounds/404743/
@@ -79,18 +125,19 @@ tr.current_high_score {
          Under https://creativecommons.org/publicdomain/zero/1.0/
          There's about a 1 second delay playing this sound through Safari. With
          Chrome, it's instaneous. -->
-    <audio id="pop_sound">
-      <source src="burst.wav"/>
-    </audio>
-    <audio id="miss_sound">
-      <source src="miss.wav"/>
-    </audio>
-    <audio id="lose_life_sound">
-      <source src="lose_life.wav"/>
-    </audio>
-    <audio id="game_over_sound">
-      <source src="game_over.wav"/>
-    </audio>
-    <canvas id="game" hidden></canvas>
-  </body>
+  <audio id="pop_sound">
+    <source src="burst.wav" />
+  </audio>
+  <audio id="miss_sound">
+    <source src="miss.wav" />
+  </audio>
+  <audio id="lose_life_sound">
+    <source src="lose_life.wav" />
+  </audio>
+  <audio id="game_over_sound">
+    <source src="game_over.wav" />
+  </audio>
+  <canvas id="game" hidden></canvas>
+</body>
+
 </html>

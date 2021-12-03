@@ -396,10 +396,9 @@ function run() {
   balloons = newBalloons;
 
   if (game_over_time) {
-    let time_diff = Math.min((currentTime - game_over_time) / 2000.0, 1);
+    let time_diff = Math.max(0, Math.min((currentTime - game_over_time) / 2000.0, 1));
     let font_scale = 4 - Math.pow(1 - time_diff, 2) * 4;
     ctx.font = "" + font_scale + "em gill sans";
-
     ctx.fillStyle = 'black';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -418,7 +417,6 @@ function firstInit() {
     let rgb = ctx.fillStyle;
     let total = parseInt(rgb.substr(1, 2), 16) + parseInt(rgb.substr(3, 2), 16) + parseInt(rgb.substr(5, 2), 16);
     numberColors[color] = total > 350 ? "black" : "white";
-    console.log(rgb + " : " + total);
   }
   init();
 }
@@ -504,10 +502,12 @@ function gameInit() {
   canvas.width = window.innerWidth - 8;
   canvas.height = window.innerHeight - 16;
 
-  pop_sound = new Sound('pop_sound', 0.3);
-  miss_sound = new Sound('miss_sound');
-  lose_life_sound = new Sound('lose_life_sound');
-  game_over_sound = new Sound('game_over_sound', 1.0)
+  if (pop_sound == null) {
+    pop_sound = new Sound('pop_sound', 0.3);
+    miss_sound = new Sound('miss_sound');
+    lose_life_sound = new Sound('lose_life_sound');
+    game_over_sound = new Sound('game_over_sound', 1.0)
+  }
 
   run();
 }

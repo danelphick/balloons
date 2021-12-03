@@ -283,7 +283,7 @@ function gameOver(ctx) {
 
 function levelUp() {
   level++;
-  spawnTime *= 0.9;
+  spawnTime *= 0.99;
 }
 
 function run() {

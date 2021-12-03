@@ -13,6 +13,7 @@ const colors = ['red', 'blue', 'green', 'yellow', 'brown', 'purple', 'pink',
   'indigo', 'maroon', 'lightslategrey', 'mediumorchid', 'moccasin',
   'teal', 'tan'
 ];
+const numberColors = [];
 
 function randomColor() {
   return colors[Math.floor(Math.random() * colors.length)];
@@ -163,6 +164,7 @@ class Balloon {
     this.y = canvas.height + this.height;
     this.color1 = randomColor();
     this.color2 = randomColor();
+    this.text_color = numberColors[this.color1];
     this.text = String.fromCharCode(Math.floor(Math.random() * 10) + 48);
 
     this.speed = Math.random() + 0.5 * Math.pow(1.2, level - 1);
@@ -229,7 +231,7 @@ function drawBalloon(ctx, balloon) {
   );
   ctx.stroke();
 
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = balloon.text_color;
   ctx.globalCompositeOperation = 'plus-darker';
   ctx.font = '' + (balloon.width + balloon.height) / 2 + 'px gill sans';
   ctx.fillText(balloon.text, balloon.x, y + height / 4);
@@ -364,8 +366,10 @@ function run() {
     if (balloon.y + balloon.height + balloon.string[2][1] > 0) {
       newBalloons.push(balloon);
     } else {
-      lives--;
-      lose_life_sound.play();
+      if (lives > 0) {
+        lives--;
+        lose_life_sound.play();
+      }
     }
   }
 
@@ -393,10 +397,10 @@ function run() {
 
   if (game_over_time) {
     let time_diff = Math.min((currentTime - game_over_time) / 2000.0, 1);
-    console.log(time_diff);
     let font_scale = 4 - Math.pow(1 - time_diff, 2) * 4;
     ctx.font = "" + font_scale + "em gill sans";
 
+    ctx.fillStyle = 'black';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText("Game Over", innerWidth / 2, innerHeight / 2);
@@ -408,6 +412,14 @@ function run() {
 
 function firstInit() {
   canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('game'));
+  let ctx = canvas.getContext("2d");
+  for (let color of colors) {
+    ctx.fillStyle = color;
+    let rgb = ctx.fillStyle;
+    let total = parseInt(rgb.substr(1, 2), 16) + parseInt(rgb.substr(3, 2), 16) + parseInt(rgb.substr(5, 2), 16);
+    numberColors[color] = total > 350 ? "black" : "white";
+    console.log(rgb + " : " + total);
+  }
   init();
 }
 

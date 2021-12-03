@@ -1,6 +1,8 @@
 // @ts-check
 'use strict';
 
+/** @type {AudioContext} */
+var audioContext = null;
 var pop_sound = null;
 var miss_sound = null;
 var lose_life_sound = null;
@@ -109,7 +111,10 @@ class Sound {
   constructor(id, volume = 0.5) {
     /** @type {HTMLAudioElement} */
     this.audio = (document.getElementById(id));
-    this.audio.volume = volume;
+    this.track = audioContext.createMediaElementSource(this.audio);
+    const gainNode = audioContext.createGain();
+    this.track.connect(gainNode).connect(audioContext.destination);
+    gainNode.gain.value = volume;
   }
 
   play() {
@@ -296,15 +301,6 @@ function run() {
       game_over_time = undefined;
       return;
     }
-
-    let time_diff = Math.min((currentTime - game_over_time) / 2000.0, 1);
-    console.log(time_diff);
-    let font_scale = 4 - Math.pow(1 - time_diff, 2) * 4;
-    ctx.font = "" + font_scale + "em gill sans";
-
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText("Game Over", innerWidth / 2, innerHeight / 2);
   }
 
   if (currentTime - spawnTime > lastSpawnTime) {
@@ -388,13 +384,25 @@ function run() {
       new_burst_balloons.push(burst);
     }
   }
-  burst_balloons = new_burst_balloons;
 
   wind += (Math.random() - 0.5) * maxWindChange;
   const maxWind = 1;
   wind = Math.min(wind, maxWind);
   wind = Math.max(wind, -maxWind);
   balloons = newBalloons;
+
+  if (game_over_time) {
+    let time_diff = Math.min((currentTime - game_over_time) / 2000.0, 1);
+    console.log(time_diff);
+    let font_scale = 4 - Math.pow(1 - time_diff, 2) * 4;
+    ctx.font = "" + font_scale + "em gill sans";
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("Game Over", innerWidth / 2, innerHeight / 2);
+  }
+
+  burst_balloons = new_burst_balloons;
   window.requestAnimationFrame(run)
 }
 
@@ -464,6 +472,7 @@ function shootListener(e) {
 }
 
 function gameInit() {
+  audioContext = new AudioContext();
   balloons = [];
   wind = 0;
   maxWindChange = 0.5;
@@ -483,7 +492,7 @@ function gameInit() {
   canvas.width = window.innerWidth - 8;
   canvas.height = window.innerHeight - 16;
 
-  pop_sound = new Sound('pop_sound');
+  pop_sound = new Sound('pop_sound', 0.3);
   miss_sound = new Sound('miss_sound');
   lose_life_sound = new Sound('lose_life_sound');
   game_over_sound = new Sound('game_over_sound', 1.0)

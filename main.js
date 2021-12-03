@@ -192,6 +192,7 @@ var scale = 0;
 const gameTime = 60 * 1000;
 const twoPi = Math.PI * 2;
 var spawnTime = 2000;
+var game_over_time = undefined;
 
 /**
  * @param {any} ctx
@@ -270,8 +271,9 @@ function showScordBoard() {
  */
 function gameOver(ctx) {
   window.removeEventListener("keydown", shootListener);
+  game_over_sound.play();
 
-  init();
+  game_over_time = Date.now();
 }
 
 function levelUp() {
@@ -281,12 +283,29 @@ function levelUp() {
 
 function run() {
   let ctx = canvas.getContext("2d");
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   let newBalloons = [];
   let current = null;
   let currentIndex = 0;
   let currentTime = Date.now();
   let currentTopY = 0;
+  if (game_over_time) {
+    if (currentTime - game_over_time > 3000) {
+      init();
+      game_over_time = undefined;
+      return;
+    }
+
+    let time_diff = Math.min((currentTime - game_over_time) / 2000.0, 1);
+    console.log(time_diff);
+    let font_scale = 4 - Math.pow(1 - time_diff, 2) * 4;
+    ctx.font = "" + font_scale + "em gill sans";
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("Game Over", innerWidth / 2, innerHeight / 2);
+  }
 
   if (currentTime - spawnTime > lastSpawnTime) {
     spawnBalloon();
@@ -322,10 +341,8 @@ function run() {
   }
 
   var now = Date.now();
-  if (lives < 1) {
-    game_over_sound.play();
+  if (!game_over_time && lives < 1) {
     gameOver(ctx);
-    return;
   }
 
   ctx.fillStyle = 'black';
@@ -337,7 +354,7 @@ function run() {
   ctx.textAlign = 'right';
   ctx.fillText("" + score, 100, 0);
 
-  ctx.fillText("Lives: " + lives, canvas.width - 10, 0);
+  ctx.fillText("Lives: " + (lives > 0 ? lives : 0), canvas.width - 10, 0);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';

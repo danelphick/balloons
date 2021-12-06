@@ -497,10 +497,8 @@ function gameInit() {
 
   window.addEventListener("keydown", shootListener, false);
 
-  // Need to figure out a better way to do this but they go as far out as on my
-  // MBP, although there is still some padding at the bottom of the window.
-  canvas.width = window.innerWidth - 8;
-  canvas.height = window.innerHeight - 16;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
   if (pop_sound == null) {
     pop_sound = new Sound('pop_sound', 0.3);

@@ -348,11 +348,11 @@ function run() {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
   ctx.font = '20px gill sans';
-  ctx.fillText("Score: ", 0, 0);
+  ctx.fillText("Score: ", 10, 10);
   ctx.textAlign = 'right';
-  ctx.fillText("" + score, 100, 0);
+  ctx.fillText("" + score, 100, 10);
 
-  ctx.fillText("Lives: " + (lives > 0 ? lives : 0), canvas.width - 10, 0);
+  ctx.fillText("Lives: " + (lives > 0 ? lives : 0), canvas.width - 10, 10);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
